@@ -150,6 +150,7 @@ function resizeCanvas() {
 }
 
 function preloadImages(callback) {
+    const FRAME_PATH = (index) => `${basePath}/ezgif-frame-${index.toString().padStart(3, '0')}.jpg`;
     let loadedCount = 0;
     for (let i = 1; i <= TOTAL_FRAMES; i++) {
         const img = new Image();
