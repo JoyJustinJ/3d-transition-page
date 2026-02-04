@@ -1,22 +1,24 @@
 const TOTAL_FRAMES = 122;
-// Use 'public/hero' if opening file directly, otherwise 'hero' (Vite serving from public root)
-const basePath = window.location.protocol === 'file:' ? 'public/hero' : 'hero';
-const FRAME_PATH = (index) => `${basePath}/ezgif-frame-${index.toString().padStart(3, '0')}.jpg`;
+
+// config
+const PATH_VITE = 'hero';
+const PATH_LOCAL = 'public/hero';
 
 // State
+let basePath = PATH_VITE; // Default to Vite/Vercel path
 let images = [];
 let currentFrame = 0;
 let canvas = null;
 let ctx = null;
 let animationReqId = null;
 let lastFrameTime = 0;
-const FPS = 13; // Adjusted speed: 13 FPS
+const FPS = 13;
 const frameInterval = 1000 / FPS;
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('UNIVERSE system online.');
 
-    // Initialize Hero Animation
+    // Initialize Hero Animation with Path Autodetection
     initHeroAnimation();
 
     // Initialize Scroll Animations
@@ -39,10 +41,10 @@ function initCursor() {
         star.style.left = `${x}px`;
         star.style.top = `${y}px`;
 
-        // Delayed/Lerped move for sparkle could be done via requestAnimationFrame, 
-        // but simple CSS 'left/top' transition lag matches strict follow. 
-        // For smoother physics we'd use JS. Let's do direct assignment + CSS transition for now 
-        // or direct assignment without transition if we want instant. 
+        // Delayed/Lerped move for sparkle could be done via requestAnimationFrame,
+        // but simple CSS 'left/top' transition lag matches strict follow.
+        // For smoother physics we'd use JS. Let's do direct assignment + CSS transition for now
+        // or direct assignment without transition if we want instant.
         // User asked for "sparkling around it", so let's make it follow closely.
 
         // To get a slight delay effect without complex JS loop, we can use a small delay in CSS check or just trail it.
@@ -73,11 +75,37 @@ function initHeroAnimation() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Preload Images
-    preloadImages(() => {
-        console.log('All hero frames loaded. Starting animation.');
-        startAnimation();
-    });
+    // Try detecting correct path before preloading all
+    detectPathAndStart();
+}
+
+function detectPathAndStart() {
+    // Try Vite path first, then Local
+    const testImg = new Image();
+    testImg.src = `${PATH_VITE}/ezgif-frame-001.jpg`;
+
+    testImg.onload = () => {
+        console.log('Path detection: Vite/Root style detected.');
+        basePath = PATH_VITE;
+        preloadImages(startAnimation);
+    };
+
+    testImg.onerror = () => {
+        console.log('Path detection: Vite path failed. Trying public/ folder...');
+        // Try fallback
+        const testImg2 = new Image();
+        testImg2.src = `${PATH_LOCAL}/ezgif-frame-001.jpg`;
+
+        testImg2.onload = () => {
+            console.log('Path detection: Local/Public style detected.');
+            basePath = PATH_LOCAL;
+            preloadImages(startAnimation);
+        };
+
+        testImg2.onerror = () => {
+            console.error('CRITICAL: Could not load hero images from either path.');
+        };
+    };
 }
 
 function resizeCanvas() {
