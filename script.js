@@ -27,35 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Custom Cursor
     initCursor();
 
-    // Debug Overlay
-    createDebugOverlay();
-    logToOverlay('System initialized. Waiting for path detection...');
+    // Initialize Custom Cursor
+    initCursor();
 });
 
-function createDebugOverlay() {
-    const div = document.createElement('div');
-    div.id = 'debug-overlay';
-    div.style.position = 'fixed';
-    div.style.bottom = '10px';
-    div.style.right = '10px';
-    div.style.background = 'rgba(0,0,0,0.8)';
-    div.style.color = '#0f0';
-    div.style.padding = '10px';
-    div.style.zIndex = '10001';
-    div.style.fontFamily = 'monospace';
-    div.style.fontSize = '12px';
-    div.style.pointerEvents = 'none';
-    div.style.maxWidth = '300px';
-    document.body.appendChild(div);
-}
 
-function logToOverlay(msg) {
-    const div = document.getElementById('debug-overlay');
-    if (div) {
-        div.innerHTML += `<div>> ${msg}</div>`;
-        console.log(msg);
-    }
-}
 
 function initCursor() {
     const star = document.getElementById('cursor-star');
@@ -114,25 +90,25 @@ function detectPathAndStart() {
     testImg.src = `${PATH_VITE}/ezgif-frame-001.jpg`;
 
     testImg.onload = () => {
-        logToOverlay('Path detection: Vite/Root style detected (hero/).');
+        console.log('Path detection: Vite/Root style detected (hero/).');
         basePath = PATH_VITE;
         preloadImages(startAnimation);
     };
 
     testImg.onerror = () => {
-        logToOverlay('Path detection: Vite path failed. Trying public/...');
+        console.log('Path detection: Vite path failed. Trying public/...');
         // Try fallback
         const testImg2 = new Image();
         testImg2.src = `${PATH_LOCAL}/ezgif-frame-001.jpg`;
 
         testImg2.onload = () => {
-            logToOverlay('Path detection: Local/Public style detected (public/hero/).');
+            console.log('Path detection: Local/Public style detected (public/hero/).');
             basePath = PATH_LOCAL;
             preloadImages(startAnimation);
         };
 
         testImg2.onerror = () => {
-            logToOverlay('CRITICAL ERROR: Could not load frames from ANY path.');
+            console.error('CRITICAL ERROR: Could not load frames from ANY path.');
         };
     };
 }
@@ -157,7 +133,6 @@ function preloadImages(callback) {
         img.src = FRAME_PATH(i);
         img.onload = () => {
             loadedCount++;
-            logToOverlay(`Loaded frame ${loadedCount}/${TOTAL_FRAMES}`);
             if (loadedCount === TOTAL_FRAMES) {
                 callback();
             }
