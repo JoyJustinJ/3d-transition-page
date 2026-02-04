@@ -1,5 +1,7 @@
 const TOTAL_FRAMES = 122;
-const FRAME_PATH = (index) => `hero/ezgif-frame-${index.toString().padStart(3, '0')}.jpg`;
+// Use 'public/hero' if opening file directly, otherwise 'hero' (Vite serving from public root)
+const basePath = window.location.protocol === 'file:' ? 'public/hero' : 'hero';
+const FRAME_PATH = (index) => `${basePath}/ezgif-frame-${index.toString().padStart(3, '0')}.jpg`;
 
 // State
 let images = [];
